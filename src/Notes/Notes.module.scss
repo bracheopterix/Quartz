@@ -1,6 +1,9 @@
 .componentContainer {
-    height: fit-content;
+    // height: fit-content;
+    height: 100vh;
     width: fit-content;
+
+
     padding: 1em;
 
     border: solid 1px lightblue;
@@ -13,37 +16,61 @@
     // min-width: 1000pt;
     box-sizing: border-box;
 
-
-    .note {
-        // @extend.componentContainer;
-        height: fit-content;
+    .scrollWise{
+        height: 100%;
         width: 100%;
-        padding: 1em;
 
-        border: solid 1px lightblue;
-        border-radius: 0.5em;
-
-
-
-        max-width: 100%;
+        background-color: aqua;
         box-sizing: border-box;
-        border-width: 1px;
+
     }
 
-    transition: width ease-in 500ms;
-
     .notesHolder {
-        height: fit-content;
+        // height: fit-content;
+        height: 80%;
         width: 100%;
+
+        overflow-y: scroll;
 
         display: flex;
         flex-direction: column;
         gap: 1em;
+        box-sizing: border-box;
+
+
+
+        .note {
+            // @extend.componentContainer;
+            height: fit-content;
+            width: 100%;
+            padding: 1em;
+
+            border: solid 1px lightblue;
+            border-radius: 0.5em;
+
+            text-transform: capitalize;
+
+            max-width: 100%;
+            box-sizing: border-box;
+            border-width: 1px;
+        }
     }
 
-    button {
-        margin-top: 2em;
+
+    transition: width ease-in 500ms;
+
+    .buttonHolder {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+        // justify-content: space-between;
+
+        button {
+            margin-top: 2em;
+        }
     }
+
+
 }
 
 // QUERIES
@@ -57,7 +84,7 @@
 
 @media(min-width:900px) {
     .componentContainer {
-        width: 60%;  
+        width: 60%;
     }
 
 

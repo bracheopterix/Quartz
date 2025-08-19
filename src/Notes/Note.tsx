@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react';
+// import { useEffect, useState } from 'react';
 import styles from './Notes.module.scss'
 
-// type NoteType = {
-//     index:number,
-//     text:string,
-// }
 
-function Note() {
-    
+type NoteParams = {
+    element: string,
+}
 
-    
+function Note(params:NoteParams) {
+
+
+
 
     return (
         <div className={styles.note}>
 
-            <div>Yesterday lalalalallalalal</div>
+            <div>{params.element}</div>
 
-            
+
         </div>
     )
 }

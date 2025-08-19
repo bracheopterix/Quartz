@@ -1,53 +1,60 @@
 import styles from './Notes.module.scss'
 import { useEffect, useState } from 'react';
+//Components
 import Note from './Note'
+//Types
+import type { NotesType, NoteType } from '../Types/Notes';
 
 
-type Notes = string[];
 
-function Notes() {
-    const testItem: Notes = ["item1", "item2", "item3"];
-    localStorage.setItem('testItem', JSON.stringify(testItem));
+type NotesParams = {
+    serverAddress: string,
+}
 
-    const [Notes, setNotes] = useState<Notes | undefined>(undefined);
+
+function Notes(params: NotesParams) {
+
+    const [Notes, setNotes] = useState<NotesType | undefined>(undefined);
 
     useEffect(() => {
-        const gotNotes = localStorage.getItem("testItem");
-        if (gotNotes) {
-            let parsedNotes: Notes;
 
-            try {
-                parsedNotes = JSON.parse(gotNotes);
-                setNotes(parsedNotes);
-                
-            } catch (error) {
-                console.log("Broke, assigning parsed Notes from LS", error);
-            }
-        }
-        else{
-            console.log("Failed to get Notes", gotNotes);
-        }
+
+        fetch(params.serverAddress + '/api/notes') // getting notes
+            .then(res => res.json())
+            .then(data => setNotes(data))
+            .catch(error => console.log(error));
 
     }, []);
+
 
     return (
         <div className={styles.componentContainer}>
 
-            <div className={styles.notesHolder}>
             <h1>Notes</h1>
 
-            <Note />
+            <div className={styles.notesHolder}>
+                <div className={styles.scrollWise}>
+                    
+                </div>
 
-            {Notes?.map((element,index)=>(
-                <Note/>
-            ))}
 
-           
-            
+
+                {Notes?.map((element: NoteType, index) => (
+                    <Note
+                        key={index}
+                        element={element}
+                    />
+                ))}
+
+
+
             </div>
 
-            
-            <button>Refresh</button>
+            <div className={styles.buttonHolder}>
+                <button>Refresh</button>
+                <button>Add</button>
+
+            </div>
         </div>
 
 
