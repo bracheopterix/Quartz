@@ -29,28 +29,42 @@ function Notes(params: NotesParams) {
 
     }, []);
 
-    /// notes slices generator ///
+    /// FALSE DATA  ///
+
+
     function* getNextPortionOfData(data: NoteType[] | undefined, slice: number) {
         //^Hello, I am a generator!
         let i = 0;
         if (data) {
             while (i < data.length) {
                 yield data.slice(i, i + slice);
-                i+=slice;
+                i += slice;
             }
             yield `Array's gone`
         }
-        else{
+        else {
             yield "Can't yield anymore";
         }
 
 
     }
 
-    const testArray = ['1','2','3','4','5','6','7','8','9','10'];
+    /// let the client decide whats part it wants from the server!!!
 
+
+    const testArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    // a test array cause Notes are not loaded from the beginning
 
     const genNextPortionOfData = getNextPortionOfData(testArray, 4);
+
+    // const testPromise = async () => new Promise((req, res) => {
+    //     return genNextPortionOfData.next().value;
+    // })
+
+
+
+
+    // I tried to fake awaiting a fetch with promise. Failed
 
 
     ///
@@ -60,10 +74,21 @@ function Notes(params: NotesParams) {
     const outerNotesContainer = useRef<HTMLDivElement | null>(null); // for now it is outer container
     const innerNotesContainer = useRef<HTMLDivElement | null>(null); // for now it is all notes
 
+    async function addNextNotesSlice(sliceValue: number) {
+
+        const fetchedNotes = await fetch(params.serverAddress + `/api/notes/slice?slice=${sliceValue}`, {
+            method: "GET",
+        })
+
+        const newSlice = (await fetchedNotes.json());
+
+        setNotes(prev => prev?.concat(newSlice.value));
 
 
+    }
 
-    function handleScroll() {
+
+    async function handleScroll() {
         // So the actual content height checks vs scrollHeight + viewportHeight (+1px for some browser's logic)=> 
         // because maximum scroll + viewport is the place where we need new data ASAP
         // so it is triggering a load function
@@ -80,10 +105,10 @@ function Notes(params: NotesParams) {
         if (outerNotesContainer.current && innerNotesContainer.current && outerNotesContainer.current?.scrollTop + outerNotesContainer.current?.offsetHeight + 1 >= innerNotesContainer.current?.scrollHeight) {
             // ^ we are equating scrolling position in the main (outer) container + it's "viewport" height with overall inner container height
             // that mean that we are touched the bottom when the top-scroll number takes its maximum value (being one viewport heigher than the content height)
-
+            //trigger to load next card
 
             console.log(`I am loading new data`, genNextPortionOfData?.next().value);
-
+            await addNextNotesSlice(4);
 
             // here we have a problem, cause the call for the content will fire multiple times before the content full load (as we still on the bottom of the content yet)
             // so we should have some protection here
@@ -100,7 +125,7 @@ function Notes(params: NotesParams) {
         outerNotesContainer.current?.addEventListener("scroll", handleScroll); // second parameter is the function that will be activated onscroll
 
 
-    }, [])
+    }, [Notes])
 
 
     /////////////////////
