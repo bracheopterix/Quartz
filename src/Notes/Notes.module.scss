@@ -16,19 +16,20 @@
     // min-width: 1000pt;
     box-sizing: border-box;
 
-    .scrollWise{
-        height: 100%;
-        width: 100%;
+    // .scrollWise {
+    //     height: fit-content;
+    //     width: 100%;
 
-        background-color: aqua;
-        box-sizing: border-box;
+    //     background-color: aqua;
+    //     box-sizing: border-box;
 
-    }
+    // }
 
-    .notesHolder {
-        // height: fit-content;
+    .notesContainer {
+
         height: 80%;
         width: 100%;
+        background-color: pink;
 
         overflow-y: scroll;
 
@@ -37,27 +38,30 @@
         gap: 1em;
         box-sizing: border-box;
 
-
-
-        .note {
-            // @extend.componentContainer;
+        .notesHolder {
             height: fit-content;
-            width: 100%;
-            padding: 1em;
+            
 
-            border: solid 1px lightblue;
-            border-radius: 0.5em;
+            .note {
+                // @extend.componentContainer;
+                height: fit-content;
+                width: 100%;
+                padding: 1em;
 
-            text-transform: capitalize;
+                border: solid 1px lightblue;
+                border-radius: 0.5em;
 
-            max-width: 100%;
-            box-sizing: border-box;
-            border-width: 1px;
+                text-transform: capitalize;
 
-            // animation: appear linear;
-            // animation-timeline: view() ;
-            // animation-range:entry 0 cover 20%;
+                max-width: 100%;
+                box-sizing: border-box;
+                border-width: 1px;
 
+                // animation: appear linear;
+                // animation-timeline: view() ;
+                // animation-range:entry 0 cover 20%;
+
+            }
         }
     }
 
