@@ -18,6 +18,7 @@ type NotesParams = {
 function Notes(params: NotesParams) {
 
     const [Notes, setNotes] = useState<NoteType[] | undefined>(undefined);
+    const [DataLoading,SetDataLoading] = useState<Boolean>(false);
 
     useEffect(() => {
 
@@ -102,13 +103,18 @@ function Notes(params: NotesParams) {
         // console.log("Top: ", outerNotesContainer.current?.scrollTop); // this should be inner container (scroll count)
         // console.log("window: ", outerNotesContainer.current?.offsetHeight) // this should be top container ("viewport")
 
-        if (outerNotesContainer.current && innerNotesContainer.current && outerNotesContainer.current?.scrollTop + outerNotesContainer.current?.offsetHeight + 1 >= innerNotesContainer.current?.scrollHeight) {
+        if (!DataLoading && outerNotesContainer.current && innerNotesContainer.current && outerNotesContainer.current?.scrollTop + outerNotesContainer.current?.offsetHeight + 1 >= innerNotesContainer.current?.scrollHeight) {
             // ^ we are equating scrolling position in the main (outer) container + it's "viewport" height with overall inner container height
             // that mean that we are touched the bottom when the top-scroll number takes its maximum value (being one viewport heigher than the content height)
             //trigger to load next card
 
-            console.log(`I am loading new data`, genNextPortionOfData?.next().value);
+            SetDataLoading(true);
+            console.log(`I am loading new data`);
             await addNextNotesSlice(4);
+            SetDataLoading(false);
+            console.log(`Loading ended`);
+
+
 
             // here we have a problem, cause the call for the content will fire multiple times before the content full load (as we still on the bottom of the content yet)
             // so we should have some protection here
