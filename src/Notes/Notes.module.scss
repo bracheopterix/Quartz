@@ -29,21 +29,26 @@
 
         height: 80%;
         width: 100%;
-        background-color: pink;
+        // background-color: pink;
 
         overflow-y: scroll;
 
-        display: flex;
-        flex-direction: column;
-        gap: 1em;
-        box-sizing: border-box;
+        // display: flex;
+        // flex-direction: column;
+        // gap: 1em;
+        // box-sizing: border-box;
 
         .notesHolder {
             height: fit-content;
-            
+
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            box-sizing: border-box;
 
             .note {
                 // @extend.componentContainer;
+                min-height: 10px;
                 height: fit-content;
                 width: 100%;
                 padding: 1em;

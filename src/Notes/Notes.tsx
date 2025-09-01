@@ -6,61 +6,88 @@ import Note from './Note'
 
 /// TYPES ///
 // type NotesType = string[]
-type NoteType = string;
+export type NoteType = {
+    created_at: string,
+    text: string,
+    id:number,
+};
 
 
 type NotesParams = {
     serverAddress: string,
 }
 
+
+/// Notes
+//  The infinite scroll in the way it is existing now is eating all the CPU
+//  The right way to do it - to have only some of them mounted
+//  I believe it is done by Pages
+//  But I still does not know how to unmount with smoothness
+//  Or without all collapsing by the height of unexisting element
+//  Maybe you don't have full scroll on the go
+//  And the scrolling motion just changing the mounted page with some cool animation depending it went uo or down???
+//  It would be cool for the book in sertar's style
+//  
+
+
+
 ///  ----  ///
 
 function Notes(params: NotesParams) {
 
-    const [Notes, setNotes] = useState<NoteType[] | undefined>(undefined);
-    const [DataLoading,SetDataLoading] = useState<Boolean>(false);
+    const [notes, setNotes] = useState<NoteType[] | undefined>(undefined);
+    // const [dataLoading, SetDataLoading] = useState<Boolean>(false);
+    const dataLoading = useRef<boolean>(false);
+    const [sliceSize, setSliceSize] = useState<number>(10);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
+
+    
+
+    useEffect(() => {
+        const container = outerNotesContainer.current;
+        if (!container) return;
+    
+        container.addEventListener("scroll", handleScroll);
+        return () => container.removeEventListener("scroll", handleScroll);
+    }, []);
 
     useEffect(() => {
 
+        // mountScrollListener();
 
-        fetch(params.serverAddress + '/api/notes') // getting notes
-            .then(res => res.json())
-            .then(data => setNotes(data))
-            .catch(error => console.log(error));
+        // mounting scroll listener
+
+        
+
+        // if (dataLoading.current) return; // stopping from triggering twice
+
+        // dataLoading.current = true;
+
+
+        // fetch(params.serverAddress + '/api/notes') // getting notes
+        //     .then(res => res.json())
+        //     .then(data => setNotes(data))
+        //     .catch(error => console.log(error));
+
+        if (page === 1) {
+
+            addNextNotesSlice()
+                // .then(res => res.json())
+                // .then(data => setNotes(data))
+                // .then(data => console.log(`data:, ${data}`))
+                // .then(() => console.log(`notes: ${notes}`))
+                .catch(error => console.log(`Loading first slice of data failed: ${error}`));
+        }
 
     }, []);
 
-    /// FALSE DATA  ///
+    
 
+    // useEffect(() => {
+    //     console.log(`Notes triggered:`, notes);
+    // }, [notes])
 
-    function* getNextPortionOfData(data: NoteType[] | undefined, slice: number) {
-        //^Hello, I am a generator!
-        let i = 0;
-        if (data) {
-            while (i < data.length) {
-                yield data.slice(i, i + slice);
-                i += slice;
-            }
-            yield `Array's gone`
-        }
-        else {
-            yield "Can't yield anymore";
-        }
-
-
-    }
-
-    /// let the client decide whats part it wants from the server!!!
-
-
-    const testArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-    // a test array cause Notes are not loaded from the beginning
-
-    const genNextPortionOfData = getNextPortionOfData(testArray, 4);
-
-    // const testPromise = async () => new Promise((req, res) => {
-    //     return genNextPortionOfData.next().value;
-    // })
 
 
 
@@ -75,49 +102,68 @@ function Notes(params: NotesParams) {
     const outerNotesContainer = useRef<HTMLDivElement | null>(null); // for now it is outer container
     const innerNotesContainer = useRef<HTMLDivElement | null>(null); // for now it is all notes
 
-    async function addNextNotesSlice(sliceValue: number) {
 
-        const fetchedNotes = await fetch(params.serverAddress + `/api/notes/slice?slice=${sliceValue}`, {
-            method: "GET",
-        })
+    async function addNextNotesSlice() {
 
-        const newSlice = (await fetchedNotes.json());
+        if (dataLoading.current) return; // защита
+        dataLoading.current = true;
 
-        setNotes(prev => prev?.concat(newSlice.value));
+        try {
 
+            const fetchedNotes = await fetch(
+                `${params.serverAddress}/api/notes/slice?page=${pageRef.current}&slice_size=${sliceSize}`
+            );
+            const newSlice = await fetchedNotes.json();
+            if (newSlice.length > 0) {
+                setNotes(prev => prev ? prev.concat(newSlice) : newSlice);
+                pageRef.current += 1;           // against state closure
+                console.log('pageref = ', pageRef.current);
+                // setPage(pageRef.current);       // against state closure
+            } else {
+                console.log("There is no more data to fetch");
+            }
+
+        }
+        catch (error) {
+            console.log(`Loading next slice failed`, error);
+        } finally {
+            dataLoading.current = false;
+        }
+        // const fetchedNotes = await fetch(params.serverAddress + `/api/notes/slice?page=${page}&slice_size=${sliceSize}`, {
+        //     method: "GET",
+        // })
+        //getting next slice of data
+
+        // const newSlice = (await fetchedNotes.json());
+        //parsing
+
+        // console.log(`newSlice:`, newSlice);
+
+        // setNotes(prev => prev ? prev.concat(newSlice) : newSlice);
+        //adding to the content visuals
+        // setPage(prev => prev + 1);
+        //updating the page count
 
     }
 
 
     async function handleScroll() {
-        // So the actual content height checks vs scrollHeight + viewportHeight (+1px for some browser's logic)=> 
-        // because maximum scroll + viewport is the place where we need new data ASAP
-        // so it is triggering a load function
-        // What is important: it may and it will trigger itself multiply times before the data is loaded cause the condition is still true
-        // So we need 'loading' state or some sort of a cycle with await and check.
 
         // if we are using all the window as our outer container, window.innerHeight will cover it's height.
+        console.log('Fetching page: ', pageRef.current, 'offset: ', page * sliceSize);
 
+        if(!innerNotesContainer.current || !outerNotesContainer.current) return;
 
-        // console.log("scrollHeight:", innerNotesContainer.current?.scrollHeight); // this should be inner container (msx losded hright)
-        // console.log("Top: ", outerNotesContainer.current?.scrollTop); // this should be inner container (scroll count)
-        // console.log("window: ", outerNotesContainer.current?.offsetHeight) // this should be top container ("viewport")
-
-        if (!DataLoading && outerNotesContainer.current && innerNotesContainer.current && outerNotesContainer.current?.scrollTop + outerNotesContainer.current?.offsetHeight + 1 >= innerNotesContainer.current?.scrollHeight) {
+        if (outerNotesContainer.current?.scrollTop + outerNotesContainer.current?.offsetHeight + 1 >= innerNotesContainer.current?.scrollHeight) {
             // ^ we are equating scrolling position in the main (outer) container + it's "viewport" height with overall inner container height
             // that mean that we are touched the bottom when the top-scroll number takes its maximum value (being one viewport heigher than the content height)
             //trigger to load next card
 
-            SetDataLoading(true);
-            console.log(`I am loading new data`);
-            await addNextNotesSlice(4);
-            SetDataLoading(false);
-            console.log(`Loading ended`);
+            // SetDataLoading(true); // multiple triggering protection
+            // console.log(`I am loading new data`);
+            await addNextNotesSlice();
 
-
-
-            // here we have a problem, cause the call for the content will fire multiple times before the content full load (as we still on the bottom of the content yet)
-            // so we should have some protection here
+            // console.log(`Loading ended`);
 
         }
         else {
@@ -126,12 +172,7 @@ function Notes(params: NotesParams) {
 
     }
 
-    useEffect(() => {
-
-        outerNotesContainer.current?.addEventListener("scroll", handleScroll); // second parameter is the function that will be activated onscroll
-
-
-    }, [Notes])
+    
 
 
     /////////////////////
@@ -147,9 +188,9 @@ function Notes(params: NotesParams) {
 
                     </div>
 
-                    {Notes?.map((element: NoteType, index) => (
+                    {notes?.map((element: NoteType) => (
                         <Note
-                            key={index}
+                            key={element.id}
                             element={element}
                         />
                     ))}

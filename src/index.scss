@@ -1,0 +1,85 @@
+// COLORS
+$main-color: lightblue;
+$light-color: #fafafa;
+$shadow: rgb(96, 141, 156);
+$light: rgb(211, 242, 252);
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: rgba(58, 58, 58, 0.87);
+  background-color: $light-color;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  // height: 100%;
+}
+
+
+
+.mainContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* MOBILE */
+@media(max-width:786px) {
+
+  .mainContainer {
+    flex-direction: column;
+
+  }
+
+}
+
+/* DESKTOP */
+
+@media(min-width:786px) {
+
+  .mainContainer {
+    flex-direction: row;
+
+  }
+
+}
+
+
+h1 {
+  color: $main-color;
+  text-decoration: underline;
+  margin-top: 0;
+}
+
+button {
+  width: fit-content;
+  padding: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  background-color: $main-color;
+  color: $light-color;
+  border: solid 0px $main-color;
+  border-radius: 5px;
+
+  &:enabled:hover {
+    box-shadow: 0 5px 5px $shadow, inset 0 -5px 5px $shadow, inset 2px 2px 2px $light;
+
+  }
+
+  &:enabled:active {
+    box-shadow: inset 0 5px 5px $shadow;
+  }
+
+  &:disabled{
+    background-color: lightgray;
+  }
+
+}

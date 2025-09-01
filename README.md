@@ -1,5 +1,17 @@
 # React + TypeScript + Vite
 
+# Main goal
+- to be a multicomponent hub for any purpose
+**Quartz front (React Vite) -> Heliotrope back (Express) -> Onyx db on Render (PostgreSQL) (temporal)**
+
+
+# routes in the main?
+# maybe without menu, just using links by hands
+
+
+
+
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
@@ -67,3 +79,6 @@ export default tseslint.config([
   },
 ])
 ```
+
+
+
