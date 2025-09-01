@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import Notes from "./Notes/Notes";
+import Notes from "./Notes_infinite/Notes";
 
 
 function App() {
